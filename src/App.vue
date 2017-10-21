@@ -1,22 +1,28 @@
 <template>
 		<div class="minha-div" >
 				<form @submit.prevent="query()">
-					<h1>Visualizar de repositorio Publicos </h1>
+					<h1>Visualizador de repositório Publicos </h1>
 					<br/>
 					<br/>
 					<label>Digite o nome do autor do repositorio: </label>
 					<br/>
-					<input type="text" v-model="git.nameAuthor"  placeholder="CaioMichelSantos">
+					<input type="text" name="nameAuthor" v-model="git.nameAuthor" placeholder="CaioMichelSantos" v-validate data-vv-rules="required"> 
+          <br/>
+					<span class="error" v-show="errors.has('nameAuthor')">Campo Obrigatório</span>
 					<br/>
 					<br/>
 					<label>Digite o nome do repositorio: </label>
 					<br/>
-					<input type="text" v-model="git.repository"  placeholder="apiKeepi">
+					<input type="text" name="repository" v-model="git.repository"  placeholder="apiKeepi" v-validate data-vv-rules="required">
+					<br/>
+					<span class="error" v-show="errors.has('repository')">Campo Obrigatório</span>
 					<br/>
 					<br/>
 					<label>Digite o nome da branch: </label>
 					<br/>
-					<input type="text" v-model="git.branch" placeholder="master">
+					<input type="text" name="branch" v-model="git.branch" placeholder="master" v-validate data-vv-rules="required">
+					<br/>
+					<span class="error" v-show="errors.has('branch')">Campo Obrigatório</span>
 					<br/>
 					<br/>
 				<button type="submit" class="btn btn-default">Buscar</button>
@@ -31,70 +37,74 @@
 					<td><a :href="list.html_url" target="_black">Link para Arquivo</a></td>
 				</tr>
 			</table>
-			<div class="p-3 mb-2 bg-danger text-white" v-show="errorPromisse" >Falha ao contatar o servidor </div>
 			<br/>
-			<div class="p-3 mb-2 bg-danger text-white" v-show="errorGit" >Falha ao Buscar Diretorio, favor conferir o nome do autor, repositorio e branch</div>
+			<span class="error"  v-show="errorPromisse" >Falha ao contatar o servidor verifique a conexão com a internet e tente novamente </span>
+			<span class="error"  v-show="errorGit" >Falha ao Buscar Diretorio, favor conferir o nome do autor, repositorio e branch</span>
 		</div>
 </template>
 
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       git: {
-				nameAuthor: "",
-				repository: "",
-				branch: "",
-
-			},
-			gitList: [],
-			errorPromisse: false,
-			errorGit: false,
-    }
-	},
-	methods: {
+        nameAuthor: "",
+        repository: "",
+        branch: ""
+      },
+      gitList: [],
+      errorPromisse: false,
+      errorGit: false
+    };
+  },
+  methods: {
     query() {
-			var that = this;
-			this.$http.post('http://localhost:3000/v1/git/',this.git).then(
-            response=>{
-							if(response.body){
-								that.gitList = response.body
-								that.errorGit = false;
-								that.errorPromisse = false;
-							}else{
-								that.errorGit = true;
-							}
-									
+      this.$validator.validateAll().then(success => {
+        if (success) {
+          this.$http.post("http://localhost:3000/v1/git/", this.git).then(
+            response => {
+              if (response.body) {
+                this.gitList = response.body;
+                this.errorGit = false;
+                this.errorPromisse = false;
+              } else {
+								this.errorGit = true;
+              }
             },
-            error=>{
-							that.errorPromisse = true;
-							gitList: [];
-            })
-		}	
+            error => {
+							this.errorPromisse = true;
+							this.errorGit = false;
+            }
+          );
+        }
+      });
+    }
   }
-}
-
+};
 </script>
 
 <style>
 div.minha-div {
-   width: 500px;
-   height: 300px;
-   outline: 1px;
-   position: relative;
-   left: 50%;
-   margin-left: -250px;
+  width: 500px;
+  height: 300px;
+  outline: 1px;
+  position: relative;
+  left: 50%;
+  margin-left: -250px;
+}
+span.error{
+	color: #FF0000;
 }
 
-h1, h2 {
+h1,h2 {
   font-weight: normal;
-	text-align: center;
-	color: #42b983;
+  text-align: center;
+  color: #42b983;
 }
 
 label {
-	font-weight: normal;
+  font-weight: normal;
 }
 
 ul {
@@ -106,5 +116,4 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
-
 </style>
