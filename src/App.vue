@@ -38,7 +38,7 @@
 				</tr>
 			</table>
 			<br/>
-			<span class="error"  v-show="errorPromisse" >Falha ao contatar o servidor verifique a conexão com a internet e tente novamente </span>
+			<span class="error"  v-show="errorPromisse" >Falha ao contatar o servidor verifique a conexão com a internet e tente novamente</span>
 			<span class="error"  v-show="errorGit" >Falha ao Buscar Diretorio, favor conferir o nome do autor, repositorio e branch</span>
 		</div>
 </template>
